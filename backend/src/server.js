@@ -210,7 +210,7 @@ async function start() {
     // Run Prisma migrations on startup (not at build time — no DB at build)
     console.log('[startup] Running Prisma migrations…');
     execSync('npx prisma migrate deploy', {
-      cwd:   path.join(__dirname, '../../'),
+      cwd:   path.join(__dirname, '../'),
       stdio: 'inherit',
       env:   { ...process.env },
     });
