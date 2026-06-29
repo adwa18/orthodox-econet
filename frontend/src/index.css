@@ -1,0 +1,131 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ─── Telegram theme CSS variables ──────────────────────────────────────────
+   Set from window.Telegram.WebApp.themeParams in index.js.
+   Defaults here are for when the app is opened outside Telegram (dev mode).  */
+:root {
+  --tg-bg:            #ffffff;
+  --tg-secondary-bg:  #f0f0f0;
+  --tg-text:          #222222;
+  --tg-hint:          #999999;
+  --tg-link:          #2678b6;
+  --tg-button:        #2678b6;
+  --tg-button-text:   #ffffff;
+  --tg-accent:        #2678b6;
+  --tg-border:        #e0e0e0;
+  --tg-card:          #ffffff;
+  --tg-danger:        #d93025;
+  --tg-success:       #1a7a4a;
+  --tg-warning:       #b85c00;
+}
+
+/* ─── Base resets for Telegram WebView ───────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body, #root {
+  height: 100%;
+  overflow: hidden; /* Let individual pages scroll, not the root */
+  -webkit-tap-highlight-color: transparent;
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  margin: 0;
+  background-color: var(--tg-bg);
+  color: var(--tg-text);
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  overscroll-behavior: none;
+}
+
+/* ─── Page container — full height, scrollable ───────────────────────────── */
+.page {
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
+}
+
+/* ─── Scrollbar (desktop dev mode only) ─────────────────────────────────── */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-thumb { background: var(--tg-border); border-radius: 2px; }
+
+/* ─── Cards ──────────────────────────────────────────────────────────────── */
+.card {
+  background: var(--tg-card);
+  border-radius: 12px;
+  border: 1px solid var(--tg-border);
+}
+
+/* ─── Buttons ────────────────────────────────────────────────────────────── */
+.btn-primary {
+  @apply flex items-center justify-center gap-2 rounded-xl px-4 py-3 font-medium text-sm transition-opacity active:opacity-80;
+  background: var(--tg-button);
+  color: var(--tg-button-text);
+  min-height: 44px;
+}
+
+.btn-secondary {
+  @apply flex items-center justify-center gap-2 rounded-xl px-4 py-3 font-medium text-sm border transition-opacity active:opacity-80;
+  background: transparent;
+  color: var(--tg-text);
+  border-color: var(--tg-border);
+  min-height: 44px;
+}
+
+.btn-danger {
+  @apply flex items-center justify-center gap-2 rounded-xl px-4 py-3 font-medium text-sm transition-opacity active:opacity-80;
+  background: var(--tg-danger);
+  color: #ffffff;
+  min-height: 44px;
+}
+
+/* ─── Inputs ─────────────────────────────────────────────────────────────── */
+.input {
+  @apply w-full rounded-xl px-4 py-3 text-sm outline-none transition-all;
+  background: var(--tg-secondary-bg);
+  color: var(--tg-text);
+  border: 1px solid transparent;
+  min-height: 44px;
+}
+.input:focus { border-color: var(--tg-button); }
+.input::placeholder { color: var(--tg-hint); }
+
+textarea.input { min-height: 88px; resize: none; }
+
+/* ─── Section badge ──────────────────────────────────────────────────────── */
+.section-badge {
+  @apply inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium;
+  background: var(--tg-secondary-bg);
+  color: var(--tg-hint);
+}
+
+/* ─── Bottom nav safe area ───────────────────────────────────────────────── */
+.bottom-nav {
+  padding-bottom: max(env(safe-area-inset-bottom), 8px);
+}
+
+/* ─── Skeleton loader ────────────────────────────────────────────────────── */
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position:  200% 0; }
+}
+.skeleton {
+  background: linear-gradient(90deg, var(--tg-secondary-bg) 25%, var(--tg-border) 50%, var(--tg-secondary-bg) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s infinite;
+  border-radius: 8px;
+}
+
+/* ─── Amharic text — slightly larger line height aids readability ─────────── */
+.am { line-height: 1.7; }
+
+/* ─── Sidebar overlay backdrop ───────────────────────────────────────────── */
+.backdrop {
+  @apply fixed inset-0 z-40;
+  background: rgba(0, 0, 0, 0.4);
+  animation: fadeIn 0.15s ease-out;
+}
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }

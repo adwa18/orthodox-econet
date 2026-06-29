@@ -1,0 +1,9 @@
+{
+  "app": { "name": "ኦርቶዶክስ ኢኮኖሚ ኔትወርክ", "tagline": "ንናይ ኢትዮጵያ ኦርቶዶክስ ክርስትያን ንግዲ ማሕበረሰብ" },
+  "auth": { "welcome": "ናብ ኦርቶዶክስ ኢኮኖሚ ኔትወርክ እንቋዕ ብደሓን መጻኹም!", "register": "ምዝገባ", "logout": "ምውጻእ", "registering": "ይምዝገብ ኣሎ...", "pendingVerification": "ምዝገባኹም ናብ ክልሳ ቀሪቡ ኣሎ። ምስ ተረጋገጸ ክትፈልጡ ኢኹም።", "declined": "ምዝገባኹም ኣይተቐበለን።", "banned": "ሕሳብኩም ተኸሊኡ ኣሎ።", "banReason": "ምኽንያት", "banExpiry": "ዕለት ምውዳእ", "permanentBan": "ቀዋሚ ኽልካ", "contactSupport": "ደገፍ ተወከሱ" },
+  "registration": { "title": "ምዝገባ", "subtitle": "ኩሎም ሜዳታት የድልዩ", "fullName": "ምሉእ ስም", "baptismName": "ናይ ክርስትና ስም", "churchName": "ቀረባ ዘሎ ቤተ ክርስቲያን", "phone": "ቁጽሪ ቴለፎን", "email": "ኢሜይል", "telegramInfo": "ናይ ቴሌግራም ሓበሬታ", "creedTitle": "ናይ እምነት ምስክርነት", "creedInstruction": "ዝስዕብ ሓረግ ብቅኑዕ ጸሓፍ:", "creedPhrase": "በሥላሴ ሦስትነት እና አንድነት አምናለው፣ የኢየሱስ ክርስቶስን የባህርይ አምላክነት በፍጹም ልቤ አምናለው፣ የድንግል ማርያም ጻድቃን መላዕክት ሰማዕታት አማላጅነት አምናለው።", "creedInput": "ሓረጉ ጸሓፍ", "creedError": "ሓረጉ ብቅኑዕ ጸሓፍ።", "creedCopy": "ቅዳሕ", "creedCopied": "ተቐዲሑ!", "submit": "ምዝገባ ኣቅርብ", "success": "ምዝገባ ቀሪቡ! ምስ ተረጋገጸ ክትፈልጡ ኢኹም።", "alreadyRegistered": "ቀደም ምዝጉብ ኢኹም" },
+  "nav": { "home": "መበቆል", "feed": "ፊድ", "marketplace": "ገበያ", "notifications": "ምልክታ", "profile": "ፕሮፋይል", "admin": "ምምሕዳር" },
+  "home": { "announcements": "ኣዋጃት", "pinned": "ተሰኪሙ", "noAnnouncements": "ዝዀነ ኣዋጅ የለን", "welcome": "ናብ ኦርቶዶክስ ኢኮኖሚ ኔትወርክ እንቋዕ ብደሓን መጻኹም!", "welcomeSubtitle": "16 ክፍልታት ዝሓዘ ማሕበረሰብ ምርምር", "dontShowAgain": "ካልኦት ግዜ ኣትሕዝ" },
+  "post": { "placeholder": "ሓሳብኩም ጸሓፉ...", "send": "ልኣኽ", "reply": "መልሲ", "react": "ምልካዕ", "report": "ሪፖርት", "edit": "ምምሕያሽ", "delete": "ምሕራድ", "replies": "መልሲታት", "noLinks": "ናይ ወጻኢ ሊንክታት ኣይፍቀዱን", "attachFile": "ፋይል ኣጠቃቕሙ" },
+  "common": { "loading": "ይጽዕን ኣሎ...", "error": "ጌጋ ተፈጢሩ", "retry": "ደጊም ፈትን", "cancel": "ሰርዝ", "save": "ኣቐምጥ", "confirm": "ኣረጋግጽ", "back": "ተመለስ", "done": "ተወዲኡ", "empty": "ዝዀነ ነገር የለን", "search": "ድለ", "close": "ዕጸው", "offline": "ኢንተርኔት የብልኩምን", "verified": "ተረጋጊጹ", "pending": "ይጽበ ኣሎ" }
+}

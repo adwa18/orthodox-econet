@@ -1,0 +1,687 @@
+// prisma/schema.prisma
+// Orthodox Econet — Complete Database Schema
+// Database: Neon PostgreSQL (free tier, serverless)
+// ORM: Prisma 5.x
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL") // For Prisma Migrate (non-pooled Neon connection)
+}
+
+// ─── Enums ────────────────────────────────────────────────────────────────────
+
+enum UserStatus {
+  UNVERIFIED
+  VERIFIED
+  DECLINED
+  BANNED
+}
+
+/// Role hierarchy: OWNER(3) > SENIOR_ADMIN(2) > MODERATOR(1) > USER(0)
+enum UserRole {
+  USER
+  MODERATOR
+  SENIOR_ADMIN
+  OWNER
+}
+
+enum BadgeType {
+  VERIFIED_MEMBER       // Standard verified community member
+  ACTIVE_CONTRIBUTOR    // Algorithmically or manually assigned for engagement
+  ELDER_MENTOR          // Spiritually senior members, assigned by admin
+  VERIFIED_PROFESSIONAL // Lawyer, doctor, accountant, engineer — credentials reviewed
+  TOP_TRADER            // Active marketplace contributors
+  COMMUNITY_BUILDER     // Admin-assigned for community service
+}
+
+enum PostStatus {
+  ACTIVE
+  DELETED       // Soft-deleted by admin — hidden from users, kept for audit
+  FLAGGED       // Automod flagged — visible but queued for review
+  UNDER_REVIEW  // Admin manually placed under review
+}
+
+// ─── User ─────────────────────────────────────────────────────────────────────
+
+model User {
+  id                String     @id @default(cuid())
+
+  // Telegram identity (auto-captured from initData)
+  telegramId        BigInt     @unique
+  telegramUsername  String?
+  telegramFirstName String?
+  telegramLastName  String?
+  telegramPhotoUrl  String?
+
+  // Registration form fields
+  fullName          String
+  baptismName       String
+  churchName        String
+  phoneNumber       String
+  email             String
+  creedAccepted     Boolean    @default(false) // User retyped the faith declaration phrase
+
+  // Account status
+  status            UserStatus @default(UNVERIFIED)
+  declineReason     String?    // Set when admin declines registration
+  verifiedAt        DateTime?
+  registeredAt      DateTime   @default(now())
+  role              UserRole   @default(USER)
+
+  // Preferences
+  preferredLanguage String     @default("am") // am | en | om | ti
+  dontShowWelcome   Boolean    @default(false) // Dismiss the welcome screen permanently
+
+  // Trust & reputation
+  trustScore        Int        @default(0)
+  endorsements      Endorsement[] @relation("UserEndorsements")
+  givenEndorsements Endorsement[] @relation("GivenEndorsements")
+  badges            Badge[]
+
+  // Professional profile (optional — only created on apply)
+  professionalProfile ProfessionalProfile?
+
+  // Security
+  twoFactorEnabled  Boolean    @default(false)
+  twoFactorCode     String?    // SHA-256 hashed 6-digit code
+  twoFactorExpiry   DateTime?
+  recoveryCode      String?    // SHA-256 hashed recovery code
+  recoveryCodeExpiry DateTime?
+
+  // Engagement stats (denormalized for fast reads)
+  postsCount        Int        @default(0)
+  lastActiveAt      DateTime   @default(now())
+  lastLoginAt       DateTime?
+
+  // Content relations
+  posts             Post[]
+  announcements     Announcement[]
+  reactions         Reaction[]
+  reportsMade       Report[]   @relation("ReportReporter")
+  reportsReceived   Report[]   @relation("ReportTarget")
+  warnings          Warning[]
+
+  // Admin relations
+  adminActions      AdminAction[] @relation("AdminActionAdmin")
+  targetActions     AdminAction[] @relation("AdminActionTarget")
+  bansGiven         Ban[]         @relation("BanGivenBy")
+  bansReceived      Ban[]         @relation("BanUser")
+
+  // Feature relations
+  listings          MarketplaceListing[]
+  offers            Offer[]
+  mentorMatches     MentorshipMatch[] @relation("Mentor")
+  menteeMatches     MentorshipMatch[] @relation("Mentee")
+  mentorProfile     MentorProfile?
+  qaHosted          LiveQA[]
+  qaQuestions       QAQuestion[]
+  pollsCreated      Poll[]
+  pollVotes         PollVote[]
+  bookingsAsClient  Booking[]  @relation("BookingClient")
+  bookingsAsPro     Booking[]  @relation("BookingProfessional")
+  notifications     Notification[]
+  donations         Donation[]
+
+  createdAt         DateTime   @default(now())
+  updatedAt         DateTime   @updatedAt
+
+  @@index([status, role])
+  @@index([telegramId])
+  @@index([trustScore])
+  @@index([status, createdAt]) // Admin verifications list
+}
+
+// ─── Trust & Reputation ───────────────────────────────────────────────────────
+
+model Endorsement {
+  id         String   @id @default(cuid())
+  toUserId   String
+  toUser     User     @relation("UserEndorsements", fields: [toUserId], references: [id])
+  fromUserId String
+  fromUser   User     @relation("GivenEndorsements", fields: [fromUserId], references: [id])
+  text       String   // Public endorsement message (max 500 chars)
+  createdAt  DateTime @default(now())
+
+  @@unique([toUserId, fromUserId]) // One endorsement per pair
+  @@index([toUserId])
+}
+
+model Badge {
+  id         String    @id @default(cuid())
+  userId     String
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type       BadgeType
+  assignedBy String?   // Admin userId who assigned it
+  note       String?   // Optional admin note (not shown to user)
+  assignedAt DateTime  @default(now())
+
+  @@unique([userId, type]) // One badge of each type per user
+  @@index([userId])
+}
+
+// ─── Professional Profile ─────────────────────────────────────────────────────
+
+model ProfessionalProfile {
+  id              String    @id @default(cuid())
+  userId          String    @unique
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  field           String    // "Legal" | "Finance" | "Health" | "Engineering" | "Other"
+  credentials     String    // Self-described credentials
+  experienceYears Int
+  isVerified      Boolean   @default(false)  // Admin verified credentials
+  verificationDoc String?   // Cloudinary URL of credential document
+  consultationFee Decimal?
+  currency        String    @default("ETB")
+  availableHours  String?   // e.g. "Mon-Fri 9am-5pm EAT"
+  verifiedAt      DateTime?
+  verifiedById    String?   // Admin userId who verified
+  appliedAt       DateTime  @default(now())
+
+  bookings        Booking[]
+
+  @@index([field, isVerified])
+}
+
+// ─── Posts ────────────────────────────────────────────────────────────────────
+
+model Post {
+  id             String     @id @default(cuid())
+  authorId       String
+  author         User       @relation(fields: [authorId], references: [id])
+
+  /// One of 16 section IDs defined in frontend/src/utils/sections.js
+  sectionId      String
+  content        String
+  attachments    Json?      // [{url, publicId, filename, mimetype, size, type}]
+
+  // Threading
+  replyToId      String?
+  replyTo        Post?      @relation("PostReplies", fields: [replyToId], references: [id])
+  replies        Post[]     @relation("PostReplies")
+
+  reactions      Reaction[]
+  status         PostStatus @default(ACTIVE)
+
+  // Soft delete
+  deletedAt      DateTime?
+  deletedById    String?
+  deleteReason   String?
+
+  // Admin move
+  originalSection  String?  // Preserved if admin moves post
+  movedAt        DateTime?
+  movedById      String?
+
+  // Moderation
+  automodFlags   Json?      // [{type: "url"|"banned_word"|"spam", match: "..."}]
+
+  reports        Report[]   @relation("ReportPost")
+  viewCount      Int        @default(0)
+
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+
+  @@index([sectionId, status, createdAt])
+  @@index([authorId, createdAt])
+  @@index([replyToId])
+  @@index([status, createdAt]) // Admin all-posts feed
+}
+
+model Reaction {
+  id        String   @id @default(cuid())
+  postId    String
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  /// Orthodox-appropriate reaction set
+  type      String   @default("like") // "like" | "pray" | "agree" | "celebrate"
+  createdAt DateTime @default(now())
+
+  @@unique([postId, userId, type]) // One per type per user per post
+  @@index([postId])
+}
+
+// ─── Announcements ────────────────────────────────────────────────────────────
+
+model Announcement {
+  id          String   @id @default(cuid())
+  title       String
+  content     String
+  authorId    String
+  author      User     @relation(fields: [authorId], references: [id])
+
+  /// "general" = shown on Home for all verified users
+  /// "section" = shown only in the specified section
+  type        String
+  sectionId   String?  // null when type === "general"
+  isPinned    Boolean  @default(false)
+  pinnedAt    DateTime?
+
+  attachments Json?    // [{url, publicId, filename, mimetype}]
+  status      String   @default("active") // "active" | "archived"
+  viewCount   Int      @default(0)
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([type, isPinned, createdAt])
+  @@index([sectionId, isPinned, createdAt])
+  @@index([status, type, createdAt])
+}
+
+// ─── Bans & Warnings ─────────────────────────────────────────────────────────
+
+model Ban {
+  id               String    @id @default(cuid())
+  userId           String
+  user             User      @relation("BanUser", fields: [userId], references: [id])
+  bannedById       String
+  bannedBy         User      @relation("BanGivenBy", fields: [bannedById], references: [id])
+  reason           String
+  isPermanent      Boolean   @default(false)
+  durationHours    Int?      // 24 | 168 | 720 | custom
+  expiresAt        DateTime? // null when isPermanent = true
+  isActive         Boolean   @default(true)
+  unbannedAt       DateTime?
+  unbannedById     String?
+  unbanReason      String?
+  notificationSent Boolean   @default(false)
+  createdAt        DateTime  @default(now())
+
+  @@index([userId, isActive])
+  @@index([expiresAt, isActive]) // For cron/startup ban expiry checks
+}
+
+model Warning {
+  id               String   @id @default(cuid())
+  userId           String
+  user             User     @relation(fields: [userId], references: [id])
+  issuedById       String   // Admin userId (not a relation — avoids cycles)
+  message          String
+  notificationSent Boolean  @default(false)
+  createdAt        DateTime @default(now())
+
+  @@index([userId])
+}
+
+// ─── Admin Audit Log ──────────────────────────────────────────────────────────
+
+model AdminAction {
+  id                   String   @id @default(cuid())
+  adminId              String
+  admin                User     @relation("AdminActionAdmin", fields: [adminId], references: [id])
+
+  /// Examples: VERIFY_USER, DECLINE_USER, BAN_USER, UNBAN_USER, WARN_USER,
+  ///           DELETE_POST, MOVE_POST, EDIT_POST, PIN_ANNOUNCEMENT,
+  ///           ADD_ADMIN, REMOVE_ADMIN, ASSIGN_BADGE, VERIFY_PROFESSIONAL,
+  ///           RESOLVE_REPORT, CONFIRM_DONATION, UPDATE_SETTING
+  action               String
+
+  targetUserId         String?
+  targetUser           User?    @relation("AdminActionTarget", fields: [targetUserId], references: [id])
+  targetPostId         String?
+  targetAnnouncementId String?
+
+  /// JSON payload with action-specific data
+  /// e.g. {reason: "...", duration: 24, fromSection: "...", toSection: "..."}
+  details              Json?
+  ipAddress            String?
+  createdAt            DateTime @default(now())
+
+  @@index([adminId, createdAt])
+  @@index([action, createdAt])
+  @@index([targetUserId, createdAt])
+}
+
+// ─── Reports ──────────────────────────────────────────────────────────────────
+
+model Report {
+  id           String    @id @default(cuid())
+  reporterId   String
+  reporter     User      @relation("ReportReporter", fields: [reporterId], references: [id])
+
+  targetType   String    // "post" | "user"
+  targetPostId String?
+  targetPost   Post?     @relation("ReportPost", fields: [targetPostId], references: [id])
+  targetUserId String?
+  targetUser   User?     @relation("ReportTarget", fields: [targetUserId], references: [id])
+
+  /// Reason enum enforced at application layer
+  reason       String    // "spam" | "offensive" | "misinformation" | "inappropriate" | "other"
+  details      String?
+
+  status       String    @default("pending") // "pending" | "under_review" | "resolved" | "dismissed"
+  resolvedById String?
+  resolution   String?
+  resolvedAt   DateTime?
+
+  createdAt    DateTime  @default(now())
+
+  @@index([status, createdAt])
+  @@index([targetPostId])
+  @@index([targetUserId])
+  @@index([reporterId])
+}
+
+// ─── Marketplace ──────────────────────────────────────────────────────────────
+
+model MarketplaceListing {
+  id            String   @id @default(cuid())
+  sellerId      String
+  seller        User     @relation(fields: [sellerId], references: [id])
+
+  title         String
+  description   String
+  /// "products" | "services" | "real_estate" | "vehicles" | "electronics"
+  /// | "food" | "books" | "clothing" | "other"
+  category      String
+  subcategory   String?
+  price         Decimal
+  currency      String   @default("ETB")
+  negotiable    Boolean  @default(true)
+  location      String?
+  images        Json?    // [{url, publicId}] — max 5 images
+  tags          String[]
+
+  status        String   @default("active") // "active" | "sold" | "reserved" | "archived"
+  offers        Offer[]
+  viewCount     Int      @default(0)
+  isFeatured    Boolean  @default(false)
+
+  moderatedAt   DateTime?
+  moderatedById String?
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([category, status, createdAt])
+  @@index([sellerId, status])
+  @@index([status, createdAt])
+}
+
+model Offer {
+  id        String             @id @default(cuid())
+  listingId String
+  listing   MarketplaceListing @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  buyerId   String
+  buyer     User               @relation(fields: [buyerId], references: [id])
+  amount    Decimal
+  message   String?
+  /// When accepted, bot notifies seller to contact buyer directly
+  status    String             @default("pending") // "pending" | "accepted" | "rejected"
+  createdAt DateTime           @default(now())
+
+  @@index([listingId, status])
+  @@index([buyerId])
+}
+
+// ─── Mentorship ───────────────────────────────────────────────────────────────
+
+/// Separate from User to keep the profile optional and clean
+model MentorProfile {
+  id           String   @id @default(cuid())
+  userId       String   @unique
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  field        String   // e.g. "Engineering", "Business", "Legal", "Health"
+  skills       String[] // Array of skill tags
+  bio          String?  // Short bio shown in mentor directory
+  availability String?  // e.g. "Weekends, evenings EAT"
+  isAccepting  Boolean  @default(true)
+  matchesCount Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  matches      MentorshipMatch[]
+
+  @@index([field, isAccepting])
+}
+
+model MentorshipMatch {
+  id               String        @id @default(cuid())
+  mentorId         String
+  mentor           User          @relation("Mentor", fields: [mentorId], references: [id])
+  menteeId         String
+  mentee           User          @relation("Mentee", fields: [menteeId], references: [id])
+  mentorProfileId  String?
+  mentorProfile    MentorProfile? @relation(fields: [mentorProfileId], references: [id])
+  field            String
+  skills           String[]
+  requestMessage   String?       // Initial request from mentee
+  goals            Json?         // [{text: "...", completed: false}]
+  status           String        @default("pending") // "pending" | "active" | "completed" | "cancelled"
+  preferredSchedule String?
+  nextMeetingAt    DateTime?
+  meetingsCount    Int           @default(0)
+  menteeRating     Int?          // 1–5 after completion
+  mentorRating     Int?          // 1–5 after completion
+  feedback         String?
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+
+  @@index([mentorId, status])
+  @@index([menteeId, status])
+}
+
+// ─── Live Q&A (AMA sessions — implemented as pinned threads, not real-time) ──
+
+model LiveQA {
+  id           String       @id @default(cuid())
+  title        String
+  description  String?
+  hostId       String
+  host         User         @relation(fields: [hostId], references: [id])
+  sectionId    String?      // Pinned to this section (null = general/home)
+  scheduledAt  DateTime
+  durationMins Int          @default(60)
+  field        String       // Topic/expertise area
+  /// "scheduled" → questions open before the session
+  /// "live" → admin manually sets this during the window
+  /// "ended" → admin closes, answers frozen
+  status       String       @default("scheduled")
+  questions    QAQuestion[]
+  attendeeCount Int         @default(0)
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  @@index([status, scheduledAt])
+  @@index([sectionId, status])
+}
+
+model QAQuestion {
+  id          String   @id @default(cuid())
+  qaId        String
+  qa          LiveQA   @relation(fields: [qaId], references: [id], onDelete: Cascade)
+  askerId     String
+  asker       User     @relation(fields: [askerId], references: [id])
+  text        String
+  isAnonymous Boolean  @default(false)
+  upvotes     Json?    @default("[]") // [userId] array stored as JSON
+  upvoteCount Int      @default(0)   // Denormalized for fast ordering
+  answered    Boolean  @default(false)
+  answer      String?
+  answeredAt  DateTime?
+  createdAt   DateTime @default(now())
+
+  @@index([qaId, upvoteCount])
+  @@index([qaId, answered])
+}
+
+// ─── Polls ────────────────────────────────────────────────────────────────────
+
+model Poll {
+  id            String       @id @default(cuid())
+  title         String
+  description   String?
+  createdById   String
+  createdBy     User         @relation(fields: [createdById], references: [id])
+  options       PollOption[]
+  isAnonymous   Boolean      @default(false) // Hides voter identity from members (not from admin)
+  allowMultiple Boolean      @default(false)
+  endAt         DateTime?
+  scope         String       @default("community") // "community" | "section"
+  sectionId     String?
+  status        String       @default("active") // "active" | "ended" | "cancelled"
+  adminNotes    String?      // Internal admin notes
+  flagged       Boolean      @default(false)
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  @@index([scope, sectionId, status])
+  @@index([status, endAt])
+}
+
+model PollOption {
+  id        String     @id @default(cuid())
+  pollId    String
+  poll      Poll       @relation(fields: [pollId], references: [id], onDelete: Cascade)
+  text      String
+  votes     PollVote[]
+  voteCount Int        @default(0) // Denormalized for fast reads
+  orderIdx  Int        @default(0)
+
+  @@index([pollId])
+}
+
+model PollVote {
+  id        String     @id @default(cuid())
+  optionId  String
+  option    PollOption @relation(fields: [optionId], references: [id], onDelete: Cascade)
+  pollId    String     // Denormalized — avoids join for uniqueness check
+  userId    String
+  user      User       @relation(fields: [userId], references: [id])
+  createdAt DateTime   @default(now())
+
+  @@unique([pollId, userId, optionId]) // Prevents duplicate votes
+  @@index([pollId])
+}
+
+// ─── Professional Bookings ────────────────────────────────────────────────────
+
+model Booking {
+  id                String               @id @default(cuid())
+  clientId          String
+  client            User                 @relation("BookingClient", fields: [clientId], references: [id])
+  professionalId    String
+  professional      User                 @relation("BookingProfessional", fields: [professionalId], references: [id])
+  profileId         String?
+  profile           ProfessionalProfile? @relation(fields: [profileId], references: [id])
+  serviceType       String               // e.g. "Legal consultation", "Tax audit"
+  description       String?
+  preferredTime     String               // Free text — "Saturday after 2pm"
+  status            String               @default("pending") // "pending" | "confirmed" | "completed" | "cancelled"
+  clientNotes       String?
+  professionalNotes String?
+  fee               Decimal?
+  currency          String               @default("ETB")
+  reminderSent      Boolean              @default(false)
+  createdAt         DateTime             @default(now())
+  updatedAt         DateTime             @updatedAt
+
+  @@index([clientId, status])
+  @@index([professionalId, status])
+}
+
+// ─── Notifications ────────────────────────────────────────────────────────────
+
+model Notification {
+  id                    String   @id @default(cuid())
+  recipientId           String
+  recipient             User     @relation(fields: [recipientId], references: [id])
+
+  /// "reply" | "announcement" | "warning" | "ban" | "unban" | "verification"
+  /// | "endorsement" | "offer" | "qa_start" | "poll" | "booking" | "donation_confirmed"
+  type                  String
+  title                 String
+  message               String
+
+  // Optional foreign keys for deep links
+  relatedPostId         String?
+  relatedUserId         String?
+  relatedListingId      String?
+  relatedAnnouncementId String?
+  relatedQaId           String?
+  relatedPollId         String?
+  relatedBookingId      String?
+
+  deliveredViaBot       Boolean  @default(false)
+  botDeliveredAt        DateTime?
+  isRead                Boolean  @default(false)
+  readAt                DateTime?
+  actionUrl             String?  // Deep link into the mini app (path only)
+
+  createdAt             DateTime @default(now())
+
+  @@index([recipientId, isRead, createdAt])
+  @@index([type, createdAt])
+}
+
+// ─── Donations ────────────────────────────────────────────────────────────────
+
+model Donation {
+  id            String    @id @default(cuid())
+  donorId       String?   // Null if anonymous
+  donor         User?     @relation(fields: [donorId], references: [id])
+  amount        Decimal
+  currency      String    @default("ETB")
+  /// "telebirr" | "bank_transfer" | "cash"
+  method        String
+  status        String    @default("pending") // "pending" | "completed" | "failed"
+  reference     String?   // Transaction reference number provided by donor
+  screenshotUrl String?   // Cloudinary URL of payment screenshot
+  message       String?   // Optional message from donor
+  isAnonymous   Boolean   @default(false)
+  confirmedAt   DateTime?
+  confirmedById String?   // Admin userId
+  adminNotes    String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@index([status, createdAt])
+  @@index([method, status])
+}
+
+// ─── Admin Settings (Owner-editable key-value config) ─────────────────────────
+// Avoids redeployment for changing payment info, support username, etc.
+
+model Setting {
+  key       String   @id    // e.g. "telebirr_number", "support_username", "bank_account_number"
+  value     String
+  label     String?          // Human-readable label for the admin UI
+  group     String   @default("general") // "general" | "payment" | "moderation"
+  updatedAt DateTime @updatedAt
+  updatedBy String?           // Admin userId who last changed it
+}
+
+// ─── V2 Placeholder — Mastermind Groups ───────────────────────────────────────
+// Deferred to v2. Schema preserved here for reference.
+// Uncomment and run a migration when ready to build.
+//
+// model MastermindGroup {
+//   id          String            @id @default(cuid())
+//   name        String
+//   description String?
+//   field       String
+//   members     MastermindMember[]
+//   curatedById String
+//   meetings    Json?
+//   status      String            @default("forming")
+//   maxMembers  Int               @default(10)
+//   createdAt   DateTime          @default(now())
+//   updatedAt   DateTime          @updatedAt
+// }
+//
+// model MastermindMember {
+//   id        String          @id @default(cuid())
+//   groupId   String
+//   group     MastermindGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
+//   userId    String
+//   role      String          @default("member")
+//   joinedAt  DateTime        @default(now())
+//   @@unique([groupId, userId])
+// }

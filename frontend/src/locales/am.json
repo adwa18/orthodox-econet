@@ -1,0 +1,68 @@
+{
+  "app": { "name": "ኦርቶዶክስ ኢኮኖሚ ኔትወርክ", "tagline": "ለኢትዮጵያ ኦርቶዶክስ ክርስቲያን ንግድ ማህበረሰብ" },
+  "auth": {
+    "welcome": "እንኳን ወደ ኦርቶዶክሳዊ የኢኮኖሚ ኔትወርክ በሰላም መጡ!",
+    "register": "ይመዝገቡ", "logout": "ውጡ", "registering": "በመመዝገብ ላይ...",
+    "pendingVerification": "ምዝገባዎ ለግምገማ ቀርቧል። ሲረጋገጥ ይነገርዎታል።",
+    "declined": "ምዝገባዎ አልተቀበለም።", "banned": "መለያዎ ታግዷል።",
+    "banReason": "ምክንያት", "banExpiry": "ያበቃበት ቀን", "permanentBan": "ቋሚ እገዳ", "contactSupport": "ድጋፍ ያናግሩ"
+  },
+  "registration": {
+    "title": "ምዝገባ", "subtitle": "ሁሉም ሜዳዎች ያስፈልጋሉ",
+    "fullName": "ሙሉ ስም", "baptismName": "የክርስትና ስም", "churchName": "ቅርብ ያለ ቤተክርስቲያን / ደብር ስም",
+    "phone": "ስልክ ቁጥር", "email": "ኢሜይል", "telegramInfo": "የቴሌግራም መረጃ",
+    "creedTitle": "የሃይማኖት መግለጫ", "creedInstruction": "ከዚህ በታች ያለውን ቃል ትክክለኛ ይጻፉ:",
+    "creedPhrase": "በሥላሴ ሦስትነት እና አንድነት አምናለው፣ የኢየሱስ ክርስቶስን የባህርይ አምላክነት በፍጹም ልቤ አምናለው፣ የድንግል ማርያም ጻድቃን መላዕክት ሰማዕታት አማላጅነት አምናለው።",
+    "creedInput": "ቃሉን ይጻፉ", "creedError": "ቃሉን ትክክለኛ ይጻፉ", "creedCopy": "ቃሉን ቅዱ", "creedCopied": "ተቀድቷል!",
+    "submit": "ምዝገባ ያስገቡ", "success": "ምዝገባዎ ቀርቧል! ሲረጋገጥ ይነገርዎታል።", "alreadyRegistered": "አስቀድሞ ተመዝግቧል"
+  },
+  "nav": { "home": "መነሻ", "feed": "ፊድ", "marketplace": "ገበያ", "notifications": "ማሳወቂያዎች", "profile": "መገለጫ", "admin": "አስተዳደር" },
+  "sections": {
+    "title": "ክፍሎች",
+    "spiritual-life": "መንፈሳዊ ሕይወት", "business-directory": "የነጋዴዎች መድረክ",
+    "import-export": "አስመጭዎች እና ላኪዎች", "education-training": "ትምህርት እና ስልጠና",
+    "logistics-supply": "ትራንስፖርት እና አቅርቦት", "jobs-careers": "የስራ ዕድል",
+    "it-software": "ቴክኖሎጂ", "health-wellness": "ጤና", "marketplace-b2c": "ገዢና ሻጭ",
+    "banking-finance": "ባንክ እና ፋይናንስ", "tenders-bids": "ጨረታ", "engineering-arch": "ምህንድስና",
+    "legal-property": "ሕግ", "trust-safety": "ታማኝነት", "business-development": "የንግድ ጥናት", "healthcare-community": "ጤና እና ማህበራዊ"
+  },
+  "home": {
+    "announcements": "ማስታወቂያዎች", "pinned": "ተሰካ", "noAnnouncements": "ምንም ማስታወቂያ የለም",
+    "welcome": "እንኳን ወደ ኦርቶዶክሳዊ የኢኮኖሚ ኔትወርክ በሰላም መጡ!",
+    "welcomeSubtitle": "ከ16 ክፍሎች ጀምሮ ማህበረሰቡን ያስሱ", "dontShowAgain": "ዳግም አታሳይ"
+  },
+  "post": {
+    "placeholder": "ሐሳብዎን ይጻፉ...", "send": "ላክ", "reply": "መልስ", "react": "ምላሽ",
+    "report": "ሪፖርት", "edit": "አርትዕ", "delete": "ሰርዝ", "replies": "መልሶች", "noLinks": "ውጫዊ ሊንኮች አይፈቀዱም",
+    "attachFile": "ፋይል ያያይዙ", "reactions": { "like": "ወደድኩ", "pray": "ጸሎት", "agree": "ተስማምቻለሁ", "celebrate": "ደስ አለኝ" }
+  },
+  "notifications": {
+    "title": "ማሳወቂያዎች", "empty": "ምንም ማሳወቂያ የለም", "markAllRead": "ሁሉንም እንደተነበበ ምልክት አድርግ",
+    "types": { "reply": "መልስ", "announcement": "ማስታወቂያ", "warning": "ማስጠንቀቂያ", "ban": "እገዳ", "unban": "እገዳ ተነሳ", "endorsement": "ምስክርነት", "offer": "ቅናሽ", "booking": "ቀጠሮ" }
+  },
+  "profile": {
+    "title": "መገለጫ", "editProfile": "አርትዕ", "endorsements": "ምስክርነቶች", "badges": "ሽልማቶች",
+    "stats": "ስታቲስቲክስ", "posts": "ፖስቶች", "trustScore": "ታማኝነት ነጥብ",
+    "endorseUser": "ምስክርነት ስጥ", "language": "ቋንቋ", "professional": "ሙያዊ መገለጫ"
+  },
+  "admin": {
+    "title": "አስተዳደር", "verifications": "ምዝገባዎች", "posts": "ፖስቶች", "users": "ተጠቃሚዎች",
+    "broadcast": "ማስታወቂያ", "overview": "ስታቲስቲክስ", "reports": "ሪፖርቶች", "settings": "ቅንብሮች",
+    "verify": "አረጋግጥ", "decline": "ውድቅ አድርግ", "declineReason": "ምክንያት",
+    "warn": "አስጠንቅቅ", "ban": "ታገድ", "unban": "እገዳ ነስ",
+    "banDuration": { "1d": "1 ቀን", "1w": "1 ሳምንት", "1m": "1 ወር", "permanent": "ቋሚ", "custom": "ልዩ" },
+    "movePost": "ፖስት ቀይር", "deletePost": "ፖስት ሰርዝ", "restorePost": "ፖስት መልስ",
+    "auditLog": "ኦዲት ምዝግብ", "pendingCount": "{{count}} በጠባቂነት ላይ",
+    "professionalApps": "ሙያዊ ማመልከቻዎች", "donations": "ድጋፎች", "confirmDonation": "አረጋግጥ"
+  },
+  "marketplace": {
+    "title": "ገበያ", "newListing": "አዲስ ዝርዝር", "search": "ፈልግ...",
+    "categories": { "products": "ምርቶች", "services": "አገልግሎቶች", "real_estate": "ሪል እስቴት", "vehicles": "ተሽከርካሪዎች", "electronics": "ኤሌክትሮኒክስ", "food": "ምግብ", "books": "መጻሕፍት", "clothing": "ልብስ", "other": "ሌሎች" },
+    "price": "ዋጋ", "negotiable": "ይደራደራል", "location": "ቦታ",
+    "makeOffer": "ቅናሽ አቅርብ", "yourOffer": "ቅናሽዎ", "offerMessage": "መልዕክት (አማራጭ)"
+  },
+  "mentorship": { "title": "አማካሪ ፈልግ", "becomeMentor": "አማካሪ ሁን", "requestMentor": "ጥያቄ ላክ", "myMatches": "ዝምድናዬ", "field": "ዘርፍ", "skills": "ክህሎቶች", "availability": "ትጠብቅ ጊዜ" },
+  "polls": { "title": "ድምጽ", "create": "አዲስ ድምጽ", "vote": "ድምጽ ስጥ", "results": "ውጤቶች", "anonymous": "ስም-አልባ", "ended": "ተዘጋ", "votes": "ድምጾች" },
+  "donations": { "title": "ድጋፍ", "telebirr": "ቴሌብር", "bank": "ባንክ ዝውውር", "cash": "ጥሬ ገንዘብ", "amount": "መጠን", "reference": "ማጣቀሻ ቁጥር", "screenshot": "ፎቶ ሰርዕ", "submit": "ላክ", "anonymous": "ስም-አልባ ለገሱ", "thanks": "ለድጋፍዎ እናመሰግናለን!" },
+  "common": { "loading": "በመጫን ላይ...", "error": "ስህተት ተፈጥሯል", "retry": "ዳግም ሞክር", "cancel": "ሰርዝ", "save": "አስቀምጥ", "confirm": "አረጋግጥ", "back": "ተመለስ", "next": "ቀጣይ", "done": "ተጠናቀቀ", "empty": "ምንም የለም", "search": "ፈልግ", "filter": "አጣራ", "close": "ዝጋ", "more": "ተጨማሪ", "all": "ሁሉም", "verified": "ተረጋግጧል", "pending": "በጠባቂነት ላይ", "offline": "ከበይነ-መረብ ውጭ ነዎት", "noInternet": "ኢንተርኔት አለዎ?" }
+}

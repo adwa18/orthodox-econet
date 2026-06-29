@@ -1,0 +1,36 @@
+{
+  "name": "orthodox-econet-frontend",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
+  },
+  "dependencies": {
+    "@tanstack/react-query": "^5.45.1",
+    "@tanstack/react-query-devtools": "^5.45.1",
+    "axios": "^1.7.2",
+    "i18next": "^23.11.5",
+    "i18next-browser-languagedetector": "^8.0.0",
+    "lucide-react": "^0.396.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-i18next": "^14.1.2",
+    "react-router-dom": "^6.23.1",
+    "react-scripts": "5.0.1",
+    "socket.io-client": "^4.7.5",
+    "zustand": "^4.5.3"
+  },
+  "devDependencies": {
+    "autoprefixer": "^10.4.19",
+    "postcss": "^8.4.38",
+    "tailwindcss": "^3.4.4"
+  },
+  "browserslist": {
+    "production": [">0.2%", "not dead", "not op_mini all"],
+    "development": ["last 1 chrome version", "last 1 firefox version", "last 1 safari version"]
+  },
+  "proxy": "http://localhost:10000"
+}

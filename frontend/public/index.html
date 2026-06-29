@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="am">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+    <meta name="theme-color" content="#1a1a2e" />
+    <meta name="description" content="የኦርቶዶክስ ኢኮኖሚ ኔትወርክ — Orthodox Econet" />
+    <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+    <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
+    <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
+
+    <!-- Telegram Mini App SDK — must load before React -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+    <title>Orthodox Econet</title>
+
+    <style>
+      /* Prevent flash of unstyled content while React hydrates */
+      body { margin: 0; background: var(--tg-theme-bg-color, #ffffff); }
+      #root { height: 100%; }
+    </style>
+  </head>
+  <body>
+    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <div id="root"></div>
+  </body>
+</html>

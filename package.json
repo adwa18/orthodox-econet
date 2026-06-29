@@ -1,0 +1,16 @@
+{
+  "name": "orthodox-econet",
+  "version": "1.0.0",
+  "description": "የኦርቶዶክስ ኢኮኖሚ ኔትወርክ — Telegram Mini App for the Ethiopian Orthodox Christian business community",
+  "private": true,
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "scripts": {
+    "build": "GENERATE_SOURCEMAP=false cd frontend && npm install && npm run build && cd ../backend && npx prisma generate",
+    "start": "cd backend && node src/server.js",
+    "dev:backend": "cd backend && npm run dev",
+    "dev:frontend": "cd frontend && npm start",
+    "postinstall": "cd backend && npx prisma generate"
+  }
+}
