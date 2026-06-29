@@ -7,10 +7,9 @@
     "node": ">=20.0.0"
   },
   "scripts": {
-    "build": "GENERATE_SOURCEMAP=false cd frontend && npm install && npm run build && cd ../backend && npx prisma generate",
-    "start": "cd backend && node src/server.js",
-    "dev:backend": "cd backend && npm run dev",
-    "dev:frontend": "cd frontend && npm start",
-    "postinstall": "cd backend && npx prisma generate"
+    "build": "npm install --prefix backend && GENERATE_SOURCEMAP=false npm install --prefix frontend && npm run build --prefix frontend",
+    "start": "node backend/src/server.js",
+    "dev:backend": "npm run dev --prefix backend",
+    "dev:frontend": "npm start --prefix frontend"
   }
 }
