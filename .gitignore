@@ -1,0 +1,9 @@
+# from repo root
+cat > .gitignore << 'EOF'
+node_modules/
+.env
+.env.local
+frontend/build/
+*.log
+.DS_Store
+EOF
