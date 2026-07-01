@@ -26,6 +26,8 @@ export default function Registration() {
   const { t } = useTranslation();
   const tg    = window.Telegram?.WebApp;
   const tgUser = tg?.initDataUnsafe?.user || {};
+  tg?.expand();
+  tg?.enableClosingConfirmation();
 
   const [form, setForm] = useState({
     fullName: '', baptismName: '', churchName: '', phoneNumber: '', email: '', creedPhrase: '',
