@@ -86,7 +86,7 @@ export default function Registration() {
   }
 
   return (
-    <div className="min-h-screen overflow-y-auto" style={{ background: 'var(--tg-bg)' }}>
+    <div style={{ background: 'var(--tg-bg)', minHeight: '100vh', overflowY: 'auto', WebkitOverflowScrolling: 'touch' }}>
       <div className="max-w-lg mx-auto px-4 py-6 pb-12">
         {/* Header */}
         <div className="text-center mb-6">
