@@ -26,7 +26,7 @@
 
 html, body, #root {
   height: 100%;
-  overflow: hidden; /* Let individual pages scroll, not the root */
+  /*overflow: hidden; /* Let individual pages scroll, not the root */
   -webkit-tap-highlight-color: transparent;
   -webkit-font-smoothing: antialiased;
 }
